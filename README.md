@@ -127,8 +127,8 @@ for debt_item in results.high_priority:
 
 - [Architecture Deep Dive](./docs/ARCHITECTURE.md)
 - [Agent Implementation Details](Coming soon)
-- [API Reference](./docs/API.md)
-- [Evaluation Metrics](./docs/METRICS.md)
+- [API Reference](Coming soon)
+- [Evaluation Metrics](Coming soon)
 
 ## 🛠️ Technical Stack
 
