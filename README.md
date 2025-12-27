@@ -126,19 +126,9 @@ for debt_item in results.high_priority:
 ## 📚 Documentation
 
 - [Architecture Deep Dive](./docs/ARCHITECTURE.md)
-- [Agent Implementation Details](./docs/AGENTS.md)
+- [Agent Implementation Details](Coming soon)
 - [API Reference](./docs/API.md)
 - [Evaluation Metrics](./docs/METRICS.md)
-
-## 🎬 Video Demo
-
-🎥 **[Watch 3-Minute Demo](YOUR_YOUTUBE_LINK)**
-
-See CodeDebt Guardian in action:
-- Problem statement & motivation
-- Architecture walkthrough
-- Live demo on real repository
-- Results & impact analysis
 
 ## 🛠️ Technical Stack
 
@@ -188,7 +178,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Priyansh Jain**  
 👨‍💻 GitHub: [@Priyanshjain10](https://github.com/Priyanshjain10)  
-💔 LinkedIn: [Connect](YOUR_LINKEDIN_PROFILE)  
+💔 LinkedIn: [Connect](www.linkedin.com/in/priyansh-jain-iitj)  
 📊 Kaggle: [@priyanshjain01](https://www.kaggle.com/priyanshjain01)
 
 ## 🚀 Acknowledgments
@@ -201,3 +191,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 🌟 **Star this repo** if you find it helpful!  
 👁️ **Watch** for updates and new features
+
+## ⚠️ Project Status
+This is a conceptual implementation developed during the 5-Day AI Agents Intensive Course. The repository demonstrates the architecture and design patterns for a multi-agent technical debt management system.
+
+**Current State:** Architecture design and prototype phase
+**Next Steps:** Full implementation of agent workflows and tool integrations
