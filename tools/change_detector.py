@@ -8,7 +8,32 @@ class ChangeDetector:
     SKIP_PATTERNS = ["test_", "_test.py", "tests/", "migrations/", "setup.py"]
     
     def __init__(self):
-        self._last_sha: dict = {}  # repo -> last checked SHA for persistence across calls
+        self._last_sha: dict = {}
+        try:
+            from tools.persistent_memory import PersistentMemoryBank
+            self._memory = PersistentMemoryBank()
+        except Exception:
+            self._memory = None
+
+    def _get_last_sha(self, owner: str, repo: str) -> str:
+        key = f"last_sha:{owner}/{repo}"
+        if self._memory:
+            try:
+                cached = self._memory.get_cache(key)
+                if cached:
+                    return cached
+            except Exception:
+                pass
+        return self._last_sha.get(key, "")
+
+    def _save_last_sha(self, owner: str, repo: str, sha: str):
+        key = f"last_sha:{owner}/{repo}"
+        self._last_sha[key] = sha
+        if self._memory:
+            try:
+                self._memory.set_cache(key, sha, ttl_seconds=86400)
+            except Exception:
+                pass
 
     def get_changed_files(self, owner: str, repo: str) -> List[Dict[str, Any]]:
         try:

@@ -36,10 +36,19 @@ class SafetyLayer:
         return True, "Size OK"
 
     def _check_no_dangerous_patterns(self, original, patched, filename):
-        dangerous = [("os.system(", "shell execution"), ("eval(", "eval"), ("exec(", "exec")]
-        for pattern, reason in dangerous:
-            if pattern in patched and pattern not in original:
-                return False, f"Introduced dangerous pattern: {reason}"
+        import ast as _ast
+        try:
+            tree = _ast.parse(patched)
+            for node in _ast.walk(tree):
+                if isinstance(node, _ast.Call):
+                    if isinstance(node.func, _ast.Attribute):
+                        if node.func.attr in ["system", "popen", "execv", "execve"]:
+                            return False, f"Dangerous call: {node.func.attr}"
+                    elif isinstance(node.func, _ast.Name):
+                        if node.func.id in ["eval", "exec", "compile"]:
+                            return False, f"Dangerous call: {node.func.id}"
+        except SyntaxError:
+            pass
         return True, "No dangerous patterns"
 
     def validate_structure(self, original: str, patched: str) -> Tuple[bool, str]:
