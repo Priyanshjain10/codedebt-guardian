@@ -2,187 +2,130 @@
 
 <div align="center">
 
-**AI-Powered Multi-Agent System for Autonomous Technical Debt Detection, Prioritization & Remediation**
+**The only AI agent that autonomously monitors, prioritizes, and fixes technical debt — while calculating its true business cost**
 
 [![CI](https://github.com/Priyanshjain10/codedebt-guardian/actions/workflows/ci.yml/badge.svg)](https://github.com/Priyanshjain10/codedebt-guardian/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Built with Gemini](https://img.shields.io/badge/Built%20with-Gemini%202.0-4285F4?logo=google)](https://ai.google.dev/)
-
-**Built by Priyansh Jain | IIT Jodhpur — Applied AI & Data Science**
+[![Tests](https://img.shields.io/badge/tests-84%20passing-brightgreen.svg)](tests/)
 
 </div>
 
 ---
 
-## 🎯 What is this?
+## What makes this different
 
-Technical debt costs organizations **$3.61 per line of code** and consumes **40–60% of developer sprint time**.
+Every tool (SonarQube, CodeClimate, DeepSource) tells you **what** the debt is. You still have to remember to check, prioritize, and fix it yourself.
 
-Traditional tools like SonarQube only **detect** problems. CodeDebt Guardian **detects, prioritizes, AND autonomously fixes them** by opening real GitHub Pull Requests.
+CodeDebt Guardian does three things no other tool does:
 
----
+**1. AutoPilot Mode** — runs continuously in the background, detects new debt on every push, and opens draft fix PRs automatically. Like a senior engineer working 24/7.
 
-## ✨ Key Features
+**2. Debt Interest Calculator** — uses real git history to show the *business cost* of ignoring each issue. "This bare except clause is 8 months old, touched by 3 teams, and costs $200 to fix today. Wait one quarter and it costs $340."
 
-| Feature | Description |
-|---------|-------------|
-| 🕵️ **3-Agent Pipeline** | Detection → Ranking → Fix Proposal, orchestrated sequentially |
-| 🤖 **Auto-Fix PRs** | Opens real GitHub PRs with code fixes applied autonomously |
-| 📊 **RICE Scoring** | Business-impact-weighted priority ranking |
-| 💾 **Persistent Memory** | SQLite-backed cache — no re-analyzing the same repo |
-| 🌐 **Web UI** | Streamlit dashboard with Plotly charts |
-| 🔭 **Observability** | Span tracing + per-operation metrics for every agent call |
-| ✅ **40+ Tests** | Full pytest suite with CI on Python 3.10/3.11/3.12 |
+**3. Safety-First Auto-fixing** — every fix is validated (AST check, structure check, dangerous pattern detection) before any PR is created. Draft PRs only. No auto-merge. Ever.
 
 ---
 
-## 🏛️ Architecture
+## Architecture
 ```
-┌─────────────────────────────────┐
-│      Orchestrator Agent         │
-│  Session Management             │
-│  PersistentMemoryBank (SQLite)  │
-│  ObservabilityLayer             │
-└──────────┬──────────────────────┘
-           │
-┌──────────┼──────────────────┐
-│          │                  │
-▼          ▼                  ▼
-Agent 1         Agent 2            Agent 3
-Debt Detection  Priority Ranking   Fix Proposal
-- Python AST    • RICE Score       • 6 Templates
-- Gemini 2.0    • AI Impact        • Gemini AI
-- Regex rules   • Sprint Plan      • Before/After
-           │
-           ▼
-     PRGenerator
-Branch → Patch → Commit → Pull Request
+┌─────────────────────────────────────────┐
+│           AutoPilot Agent               │
+│  Runs on schedule — no human needed     │
+└────────────────┬────────────────────────┘
+                 │
+    ┌────────────┼────────────┐
+    ▼            ▼            ▼
+Change       Debt         Fix
+Detector  Detection    Proposal
+(new code   Agent       Agent
+ only)    (3 agents)  (templates
+                       + AI)
+                 │
+                 ▼
+         Safety Layer
+     (AST + structure +
+      dangerous pattern
+         validation)
+                 │
+                 ▼
+         Draft PR Created
+      (human reviews first)
 ```
 
----
+## Agents
 
-## 🚀 Quick Start
+- **Debt Detection Agent** — AST-based static analysis + Gemini AI semantic analysis
+- **Priority Ranking Agent** — RICE-inspired scoring with severity weights  
+- **Fix Proposal Agent** — 6 fix templates + AI fallback
+- **AutoPilot Agent** — orchestrates everything on a schedule
+- **Safety Layer** — validates every fix before PR creation
+- **Change Detector** — analyzes only files changed in recent commits
+- **Debt Interest Calculator** — calculates business cost from git history
 
-### Prerequisites
-- Python 3.10+
-- [Google AI Studio API Key](https://aistudio.google.com/app/apikey) (free)
-- [GitHub Personal Access Token](https://github.com/settings/tokens)
+## What it detects
 
-### Installation
+- Bare except clauses
+- Long functions (>50 lines)
+- God classes (>300 lines)
+- Hardcoded credentials
+- Missing docstrings
+- Missing type hints
+- Duplicate code
+
+## Quick Start
 ```bash
-git clone https://github.com/Priyanshjain10/codedebt-guardian.git
+git clone https://github.com/Priyanshjain10/codedebt-guardian
 cd codedebt-guardian
-python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env  # Add your API keys
+cp .env.example .env  # Add your GOOGLE_API_KEY and GITHUB_TOKEN
 ```
 
-### Usage
+**Run once:**
 ```bash
-# Launch web UI
-python main.py --ui
-
-# CLI analysis
-python main.py --repo https://github.com/owner/repo
-
-# Auto-fix mode — creates real GitHub PRs
-python main.py --repo https://github.com/owner/repo --auto-fix --max-prs 3
+python main.py --repo https://github.com/your/repo
 ```
 
-### Python API
+**AutoPilot mode (runs continuously):**
 ```python
-from agents.orchestrator import CodeDebtOrchestrator
+from agents.autopilot_agent import AutoPilotAgent, AutoPilotConfig
 
-guardian = CodeDebtOrchestrator()
-detection = guardian.detect_debt("https://github.com/owner/repo")
-ranked    = guardian.rank_debt(detection)
-fixes     = guardian.propose_fixes(ranked[:10])
-
-# Auto-fix: create real PRs
-prs = guardian.create_pull_requests(
-    repo_url="https://github.com/owner/repo",
-    fix_proposals=fixes,
-    ranked_issues=ranked,
-    max_prs=3,
+config = AutoPilotConfig(
+    max_prs_per_day=3,
+    draft_prs_only=True,  # Always
+    dry_run=False
 )
-for pr in prs:
-    print(f"#{pr['number']}: {pr['html_url']}")
+agent = AutoPilotAgent(config=config)
+agent.run("https://github.com/your/repo")
 ```
 
----
+**Debt Interest Report:**
+```python
+from tools.debt_interest import DebtInterestCalculator
 
-## 🔍 What Gets Detected
-
-**Security 🔴** — Hardcoded passwords, API keys, bare except clauses
-**Structure 🟠** — God classes, long functions, too many parameters
-**Maintainability 🟡** — Missing docstrings, no type hints, high cyclomatic complexity
-**Project Health 🟢** — No tests, no CI/CD, unpinned dependencies, missing README
-
----
-
-## 📁 Project Structure
-```
-codedebt-guardian/
-├── agents/
-│   ├── orchestrator.py           # Master coordinator
-│   ├── debt_detection_agent.py   # AST + Gemini scanning
-│   ├── priority_ranking_agent.py # RICE scoring
-│   └── fix_proposal_agent.py     # Fix generator
-├── tools/
-│   ├── pr_generator.py           # Autonomous GitHub PR creation
-│   ├── persistent_memory.py      # SQLite-backed memory
-│   ├── github_tool.py            # GitHub REST API
-│   ├── code_analyzer.py          # AST metrics
-│   └── observability.py          # Span tracing
-├── models/
-│   └── schemas.py                # Pydantic v2 data models
-├── ui/app.py                     # Streamlit web UI
-├── tests/                        # 40+ unit tests
-├── .github/workflows/ci.yml      # GitHub Actions CI
-└── main.py                       # CLI entry point
+calc = DebtInterestCalculator()
+result = calc.calculate("owner", "repo", "path/to/file.py", issue)
+print(result["summary"])
+# "This bare except is 8 months old, touched 23 times.
+#  Fix costs $100 today. Wait one quarter: $340."
 ```
 
----
+## Tech Stack
 
-## 🧪 Running Tests
+- **Google ADK + Gemini 2.0** — AI analysis and fix generation
+- **Pydantic v2** — type-safe data models
+- **GitHub REST API** — repo access and PR creation
+- **AST** — syntax validation and code structure analysis
+- **pytest** — 84 tests across all components
+
+## Tests
 ```bash
-pytest tests/ -v --cov=agents --cov=tools
+pytest tests/ -v
+# 84 passed
 ```
 
----
+## Project Status
 
-## 🗺️ Roadmap
+Active development. Core features working. AutoPilot and Debt Interest Calculator are new — feedback welcome.
 
-- [x] 3-agent detection & fix pipeline
-- [x] RICE-based priority scoring
-- [x] Auto-Fix PR generation
-- [x] SQLite persistent memory
-- [x] Streamlit web UI
-- [x] GitHub Actions CI
-- [ ] GitHub Action (auto-analyze on PR)
-- [ ] Support for JavaScript/TypeScript
-- [ ] Slack/Discord notifications
-- [ ] VS Code extension
-
----
-
-## 🤝 Contributing
-
-PRs welcome! Fork → Branch → Test → PR.
-
----
-
-## 📝 License
-
-MIT — see [LICENSE](LICENSE)
-
----
-
-<div align="center">
-
-⭐ **Star this repo** if it helped you!
-
-**[Priyansh Jain](https://github.com/Priyanshjain10)** | IIT Jodhpur
-
-</div>
+Built by [Priyansh Jain](https://github.com/Priyanshjain10) — Sem 2, Applied AI & Data Science, IIT Jodhpur.
