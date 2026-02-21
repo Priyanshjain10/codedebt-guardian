@@ -61,9 +61,13 @@ class AutoPilotAgent:
             for issue in safe:
                 if self._prs_today >= self.config.max_prs_per_day:
                     break
-                fix = fix_agent._apply_template(issue)
-                if not fix:
+                template = fix_agent._fix_templates.get(issue.get("type", ""))
+                if not template:
                     result["prs_skipped"].append({"type": issue.get("type"), "reason": "No template"})
+                    continue
+                fix = fix_agent._apply_template(issue, template)
+                if not fix:
+                    result["prs_skipped"].append({"type": issue.get("type"), "reason": "Template failed"})
                     continue
 
                 if fix.get("before_code") and fix.get("after_code"):
