@@ -6,6 +6,9 @@ logger = logging.getLogger(__name__)
 
 class ChangeDetector:
     SKIP_PATTERNS = ["test_", "_test.py", "tests/", "migrations/", "setup.py"]
+    
+    def __init__(self):
+        self._last_sha: dict = {}  # repo -> last checked SHA for persistence across calls
 
     def get_changed_files(self, owner: str, repo: str) -> List[Dict[str, Any]]:
         try:

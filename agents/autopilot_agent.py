@@ -80,8 +80,23 @@ class AutoPilotAgent:
                     result["prs_created"].append({"type": issue.get("type"), "dry_run": True})
                     logger.info(f"DRY RUN: Would fix {issue.get('type')} in {file_info['name']}")
                 else:
-                    self._prs_today += 1
-                    result["prs_created"].append({"type": issue.get("type"), "file": file_info["name"]})
+                    try:
+                        from tools.pr_generator import PRGenerator
+                        pr_gen = PRGenerator()
+                        pr = pr_gen.create_fix_pr(
+                            repo_url=repo_url,
+                            issue=issue,
+                            fix_proposal=fix,
+                        )
+                        self._prs_today += 1
+                        result["prs_created"].append({
+                            "type": issue.get("type"),
+                            "file": file_info["name"],
+                            "pr_url": pr.get("html_url") if pr else None,
+                            "pr_number": pr.get("number") if pr else None,
+                        })
+                    except Exception as e:
+                        result["errors"].append(f"PR creation failed: {str(e)}")
 
         result["duration_seconds"] = round((datetime.now() - start).total_seconds(), 2)
         result["safety_stats"] = self.safety.stats()

@@ -1,0 +1,46 @@
+name: CodeDebt Guardian AutoPilot
+
+on:
+  schedule:
+    - cron: "0 2 * * *"  # Runs every night at 2 AM UTC
+  push:
+    branches: [ main ]   # Also runs on every push
+  workflow_dispatch:      # Manual trigger from GitHub UI
+
+jobs:
+  autopilot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AutoPilot (dry run on PRs, real on main)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          python -c "
+          import os
+          from agents.autopilot_agent import AutoPilotAgent, AutoPilotConfig
+
+          config = AutoPilotConfig(
+              max_prs_per_day=3,
+              draft_prs_only=True,
+              dry_run=False,
+              allowed_fix_types=['bare_except', 'missing_docstring']
+          )
+          agent = AutoPilotAgent(config=config)
+          result = agent.run('https://github.com/${{ github.repository }}')
+          print(agent.generate_report([result]))
+          "
