@@ -50,17 +50,17 @@ def run_analysis(repo_url: str, branch: str = "main", output_format: str = "rich
     orchestrator = CodeDebtOrchestrator()
 
     print("\n[1/3] 🕵️  Running Debt Detection Agent...")
-    detection_results = orchestrator.detect_debt(repo_url, branch)
+    detection_results = orchestrator.analyze(repo_url, branch=branch)
     print(f"      Found {detection_results['total_issues']} technical debt issues")
 
     print("\n[2/3] 📊 Running Priority Ranking Agent...")
-    ranked_results = orchestrator.rank_debt(detection_results)
+    ranked_results = # rank_debt removed - analyze() handles this
     critical = sum(1 for item in ranked_results if item.get("priority") == "CRITICAL")
     high = sum(1 for item in ranked_results if item.get("priority") == "HIGH")
     print(f"      {critical} CRITICAL | {high} HIGH priority items identified")
 
     print("\n[3/3] 🔧 Running Fix Proposal Agent...")
-    fix_proposals = orchestrator.propose_fixes(ranked_results[:10])
+    fix_proposals = # propose_fixes removed - analyze() handles this
     print(f"      Generated {len(fix_proposals)} fix proposals")
 
     # Auto-fix: create actual GitHub PRs
@@ -68,7 +68,7 @@ def run_analysis(repo_url: str, branch: str = "main", output_format: str = "rich
     if auto_fix:
         print(f"\n[4/4] 🤖 Running Auto-Fix — Creating GitHub PRs...")
         try:
-            created_prs = orchestrator.create_pull_requests(
+            created_prs = # create_pull_requests removed - use AutoPilotAgent(
                 repo_url=repo_url,
                 fix_proposals=fix_proposals,
                 ranked_issues=ranked_results,
