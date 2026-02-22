@@ -54,13 +54,13 @@ def run_analysis(repo_url: str, branch: str = "main", output_format: str = "rich
     print(f"      Found {detection_results['total_issues']} technical debt issues")
 
     print("\n[2/3] 📊 Running Priority Ranking Agent...")
-    ranked_results = # rank_debt removed - analyze() handles this
+    ranked_results = detection_results.get("ranked_issues", detection_results.get("issues", []))
     critical = sum(1 for item in ranked_results if item.get("priority") == "CRITICAL")
     high = sum(1 for item in ranked_results if item.get("priority") == "HIGH")
     print(f"      {critical} CRITICAL | {high} HIGH priority items identified")
 
     print("\n[3/3] 🔧 Running Fix Proposal Agent...")
-    fix_proposals = # propose_fixes removed - analyze() handles this
+    fix_proposals = detection_results.get("fix_proposals", [])
     print(f"      Generated {len(fix_proposals)} fix proposals")
 
     # Auto-fix: create actual GitHub PRs
