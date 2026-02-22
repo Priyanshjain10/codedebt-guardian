@@ -68,13 +68,7 @@ def run_analysis(repo_url: str, branch: str = "main", output_format: str = "rich
     if auto_fix:
         print(f"\n[4/4] 🤖 Running Auto-Fix — Creating GitHub PRs...")
         try:
-            created_prs = # create_pull_requests removed - use AutoPilotAgent(
-                repo_url=repo_url,
-                fix_proposals=fix_proposals,
-                ranked_issues=ranked_results,
-                max_prs=max_prs,
-                base_branch=branch,
-            )
+            created_prs = []  # Use AutoPilotAgent for PR creation
             if created_prs:
                 print(f"\n      ✅ Created {len(created_prs)} Pull Request(s):")
                 for pr in created_prs:
