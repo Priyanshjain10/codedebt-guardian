@@ -316,7 +316,7 @@ if analyze_btn and repo_url:
         
         with st.spinner(""):
             log("Running debt detection...")
-            results = orchestrator.analyze(repo_url, max_files=max_files)
+            results = orchestrator.run_full_analysis(repo_url)
         
         issues = results.get("issues", [])
         fixes = results.get("fix_proposals", [])
