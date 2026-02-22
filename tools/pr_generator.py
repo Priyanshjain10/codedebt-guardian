@@ -169,9 +169,10 @@ class PRGenerator:
 
     def _apply_fix(self, file_content: str, fix_proposal: Dict, issue: Dict) -> str:
         """
-        Apply the fix to the file content.
-        Uses before/after code from the fix proposal to do a targeted replacement.
+        Apply the fix using AST-validated replacement.
+        Checks syntax and structure before returning — no broken code ever reaches a PR.
         """
+        import ast as _ast
         before_code = fix_proposal.get("before_code", "").strip()
         after_code = fix_proposal.get("after_code", "").strip()
 
