@@ -43,3 +43,6 @@ debt_report_*.json
 
 # Logs
 *.log
+
+# SQLite database
+*.db
