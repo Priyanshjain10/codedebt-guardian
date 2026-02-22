@@ -912,7 +912,7 @@ if analyze_btn and repo_url:
                 </div>
                 """, unsafe_allow_html=True)
                 for r in ires:
-                    with st.expander(f"  {r.get('filepath','file')}  --  ${r.get('current_cost_usd',0):,.0f} now  to  ${r.get('future_cost_usd',0):,.0f} next quarter"):
+                    with st.expander(f"  {r.get('filepath','file')}  --  ${r.get('current_cost_usd',0):,.0f} now →  ${r.get('future_cost_usd',0):,.0f} next quarter"):
                         st.markdown(f"""
 **Age:** {r.get('age_days',0)} days &nbsp; **Touches:** {r.get('total_touches',0)} commits &nbsp; **Authors:** {r.get('unique_authors',0)} &nbsp; **Interest:** {r.get('interest_rate_pct',0)}%
 
