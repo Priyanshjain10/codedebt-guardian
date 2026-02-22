@@ -226,8 +226,8 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
     with st.expander("🔐 API Keys", expanded=True):
-        google_api_key = st.text_input("GOOGLE_API_KEY", value=os.environ.get("GOOGLE_API_KEY", ""), type="password", placeholder="AIza...")
-        github_token = st.text_input("GITHUB_TOKEN", value=os.environ.get("GITHUB_TOKEN", ""), type="password", placeholder="ghp_...")
+        google_api_key = st.text_input("GOOGLE_API_KEY", value="", type="password", placeholder="AIza...")
+        github_token = st.text_input("GITHUB_TOKEN", value="", type="password", placeholder="ghp_...")
         if google_api_key: os.environ["GOOGLE_API_KEY"] = google_api_key
         if github_token: os.environ["GITHUB_TOKEN"] = github_token
     
