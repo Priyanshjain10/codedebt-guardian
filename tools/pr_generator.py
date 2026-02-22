@@ -179,9 +179,31 @@ class PRGenerator:
         if not before_code or not after_code:
             return file_content
 
-        # Try direct string replacement first
+        # Try direct string replacement with AST validation
         if before_code in file_content:
-            return file_content.replace(before_code, after_code, 1)
+            patched = file_content.replace(before_code, after_code, 1)
+
+            # Syntax check — never return code that won't compile
+            try:
+                _ast.parse(patched)
+            except SyntaxError as e:
+                logger.warning(f"Patched code has syntax error ({e}), keeping original")
+                return file_content
+
+            # Structure check — no functions/classes accidentally removed
+            try:
+                orig_names  = {n.name for n in _ast.walk(_ast.parse(file_content))
+                               if isinstance(n, (_ast.FunctionDef, _ast.AsyncFunctionDef, _ast.ClassDef))}
+                patch_names = {n.name for n in _ast.walk(_ast.parse(patched))
+                               if isinstance(n, (_ast.FunctionDef, _ast.AsyncFunctionDef, _ast.ClassDef))}
+                removed = orig_names - patch_names
+                if removed:
+                    logger.warning(f"Fix would remove {removed}, keeping original")
+                    return file_content
+            except SyntaxError:
+                pass
+
+            return patched
 
         # Try line-by-line for bare except (most common fixable pattern)
         issue_type = issue.get("type", "")
