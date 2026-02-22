@@ -27,18 +27,41 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Validate AutoPilot import
+        run: |
+          python -c "
+import sys
+sys.path.insert(0, '.')
+from agents.autopilot_agent import AutoPilotAgent, AutoPilotConfig
+print('Import OK')
+"
+
       - name: Run AutoPilot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python -c "
-import os
+import sys, os
+sys.path.insert(0, '.')
 from agents.autopilot_agent import AutoPilotAgent, AutoPilotConfig
+
 repo = os.environ.get('GITHUB_REPOSITORY', '')
-config = AutoPilotConfig(max_prs_per_day=3, draft_prs_only=True, dry_run=False,
-    allowed_fix_types=['bare_except', 'missing_docstring', 'hardcoded_password'])
+repo_url = f'https://github.com/{repo}'
+print(f'Analyzing: {repo_url}')
+
+config = AutoPilotConfig(
+    max_prs_per_day=3,
+    draft_prs_only=True,
+    dry_run=False,
+    allowed_fix_types=['bare_except', 'missing_docstring', 'hardcoded_password']
+)
 agent = AutoPilotAgent(config=config)
-result = agent.run(f'https://github.com/{repo}')
-print(agent.generate_report([result]))
-          "
+result = agent.run(repo_url)
+print(f'Files analyzed: {result.get("files_analyzed", 0)}')
+print(f'Issues found:   {result.get("issues_found", 0)}')
+print(f'PRs created:    {len(result.get("prs_created", []))}')
+for pr in result.get('prs_created', []):
+    print(f'  PR: {pr.get("url", "")}')
+"
